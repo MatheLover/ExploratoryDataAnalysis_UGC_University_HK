@@ -50,7 +50,8 @@ ug_stud_plot <- ug_stud_copy %>%
 ggplot(data=ug_stud_plot) +
   geom_line(mapping=aes(x=Academic_year,y=total, group=Institution, color=Institution))
 
-## Question 2 -- What is the age distribution of first-year undergraduate student populations in each school?
+## Question 2 -- What is the age distribution of first-year JUPAS undergraduate student populations in each school?
+# JUPAS
 # Read in First-year Student Intakes (hc) data set
 first_year_stud <- read_excel("Admission Qualification of First-year Ug Intakes by Age (hc).xls", sheet="Customised Data Retrieval" )
 summary(first_year_stud)
@@ -122,3 +123,4 @@ first_yr_jupas_partial <- first_yr_jupas_partial %>%
 # Plot partial bart chart
 ggplot(data=first_yr_jupas_partial, aes(x=Academic_year, y=total, fill=as.factor(Age))) + 
   geom_bar(stat = "identity", position = "dodge")
+

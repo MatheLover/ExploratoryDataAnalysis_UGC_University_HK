@@ -5,8 +5,8 @@
 This project tries to understand the characteristics of undergraduates as well as those graduates from UGC-funded schools through analyzing the dataset provided on https://cdcf.ugc.edu.hk/cdcf/indepthAnalysis.action
 
 In this project, I try to understand several questions:
-        1.Which UGC-funded institution has the largest number of undergraduate students throughout 10 years ? 
-        2.What is the age distribution of first-year JUPAS and Non-JUPAS undergraduate student populations? 
-        3.Where do most first year undergraduate intakes come from?
+        1.Which UGC-funded institution has the largest number of undergraduate students throughout 10 years ?
+        2.What is the age distribution of first-year JUPAS undergraduate student populations? 
+        3.Where do most first year undergraduates intakes come from?
         4.Which industry do most graduates work in? Among different schools, which school contributes the most to different sectors?(For the last 5 years)
         5.Is the number of students who discontinue their undergraduate studies increasing?
