@@ -34,3 +34,18 @@ agg_sum_over_200 <- filter(agg_sum_most,agg_sum_most$x >= 200)
 # Plot bar chart
 ggplot(data=agg_sum_over_200, aes(x=Group.1, y=x, fill=Group.1)) +
   geom_bar(stat = "identity", position = "dodge")
+
+# Plot bar chart without local students
+agg_sum_non_local <- filter(agg_sum_over_200, Group.1 != 'Local student')
+ggplot(data=agg_sum_non_local, aes(x=Group.1, y=x, fill=Group.1)) +
+  geom_bar(stat = "identity", position = "dodge")
+
+# Focus on mainland and local students
+first_year_stud_q3_mainland_local <- filter(first_year_stud_q3, Origin == 'Local student' | Origin == 'The Mainland of China' )
+
+# Aggregate sum for local and mainland China students respectively within each year
+agg_sum_mainland_local <- aggregate(first_year_stud_q3_mainland_local$`1st_year_intake_no`, by=list(first_year_stud_q3_mainland_local$Academic_year, first_year_stud_q3_mainland_local$Origin), FUN=sum, na.rm=TRUE)
+
+# Plot bar chart to visualize the trends for mainland and local students 
+ggplot(data=agg_sum_mainland_local, aes(x=Group.1, y=x, fill=Group.2)) +
+  geom_bar(stat = "identity")

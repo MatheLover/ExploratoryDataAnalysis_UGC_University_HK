@@ -120,7 +120,7 @@ first_yr_jupas_partial <- first_yr_jupas_partial %>%
   group_by(Academic_year, Age) %>%
   summarise(total = sum(`1st_year_intake_no`, na.rm = TRUE))
 
-# Plot partial bart chart
+# Plot partial bar chart
 ggplot(data=first_yr_jupas_partial, aes(x=Academic_year, y=total, fill=as.factor(Age))) + 
   geom_bar(stat = "identity", position = "dodge")
 
