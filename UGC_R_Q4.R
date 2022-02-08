@@ -164,3 +164,71 @@ agg_sum_occup <- filter(agg_sum_occup, agg_sum_occup$Group.2 != 'Missing Informa
 ggplot(data=agg_sum_occup, aes(x=Group.2, y=x, fill=Group.1)) +
   coord_flip()+
   geom_bar(stat = "identity")
+
+## Focus on STEM industries 
+ug_employment_stem <- filter(ug_employment, Occupation == 'Statistics and Mathematics' | Occupation == 'Medical and Health' | Occupation == 'Physics and Biology' | Occupation == 'Engineering' | Occupation == 'IT' )
+ug_employment_math <- filter(ug_employment_stem,Occupation == 'Statistics and Mathematics' )
+ug_employment_med <- filter(ug_employment_stem,Occupation == 'Medical and Health' )
+ug_employment_phy_bio <- filter(ug_employment_stem,Occupation == 'Physics and Biology' )
+ug_employment_eng <- filter(ug_employment_stem,Occupation == 'Engineering' )
+ug_employment_it <- filter(ug_employment_stem,Occupation == 'IT' )
+
+# Aggregate sum of each STEM occupation throughout 10 years
+agg_sum_occup_stem <- aggregate(ug_employment_stem$`No. of graduates`, by=list(ug_employment_stem$Institution, ug_employment_stem$Occupation), FUN=sum, na.rm=TRUE)
+
+# Plot bar chart for each profession at each school
+ggplot(data=agg_sum_occup_stem, aes(x=Group.2, y=x, fill=Group.1)) +
+  coord_flip()+
+  geom_bar(stat = "identity")
+
+## Focus on Math and Stat
+ggplot(data=ug_employment_math, aes(x=`Institution`, y=`No. of graduates`)) +
+  coord_flip() +
+  geom_bar(stat = "identity")
+ggplot(data=ug_employment_math) +
+  geom_line(mapping=aes(x=`Academic Year`,y=`No. of graduates`, group=Institution, color=Institution))
+
+## Focus on Medical and Health
+ggplot(data=ug_employment_med, aes(x=`Institution`, y=`No. of graduates`)) +
+  coord_flip() +
+  geom_bar(stat = "identity")
+ggplot(data=ug_employment_med) +
+  geom_line(mapping=aes(x=`Academic Year`,y=`No. of graduates`, group=Institution, color=Institution))
+
+# Focus on schools except CU, HKU, and PolyU
+ug_employment_med_other <- filter(ug_employment_med, Institution != 'CUHK' & Institution != 'HKU' & Institution != 'PolyU' )
+ggplot(data=ug_employment_med_other) +
+  geom_line(mapping=aes(x=`Academic Year`,y=`No. of graduates`, group=Institution, color=Institution))
+
+## Focus on Phy and Bio
+ggplot(data=ug_employment_phy_bio, aes(x=`Institution`, y=`No. of graduates`)) +
+  coord_flip() +
+  geom_bar(stat = "identity")
+ggplot(data=ug_employment_phy_bio, mapping=aes(x=`Academic Year`,y=`No. of graduates`, fill =Institution)) +
+  coord_flip() +
+  geom_bar(stat="identity")
+
+# Pie Chart
+# ggplot(data=ug_employment_phy_bio, aes(x="", y=`No. of graduates`, group=Institution, colour=Institution, fill=Institution)) +
+  #geom_bar(width = 1, stat = "identity") +
+  #coord_polar("y", start=0) + 
+  #facet_grid(.~ factor(ug_employment_phy_bio$`Academic Year`)) +theme_void()
+
+## Focus on IT
+ggplot(data=ug_employment_it, aes(x=`Institution`, y=`No. of graduates`)) +
+  coord_flip() +
+  geom_bar(stat = "identity")
+ggplot(data=ug_employment_it) +
+  geom_line(mapping=aes(x=`Academic Year`,y=`No. of graduates`, group=Institution, color=Institution))
+
+
+## Focus on Engineering
+ggplot(data=ug_employment_eng, aes(x=`Institution`, y=`No. of graduates`)) +
+  coord_flip() +
+  geom_bar(stat = "identity")
+ggplot(data=ug_employment_eng, mapping=aes(x=`Academic Year`,y=`No. of graduates`, fill =Institution)) +
+  coord_flip() +
+  geom_bar(stat="identity")
+s
+
+
