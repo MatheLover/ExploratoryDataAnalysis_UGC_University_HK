@@ -229,6 +229,6 @@ ggplot(data=ug_employment_eng, aes(x=`Institution`, y=`No. of graduates`)) +
 ggplot(data=ug_employment_eng, mapping=aes(x=`Academic Year`,y=`No. of graduates`, fill =Institution)) +
   coord_flip() +
   geom_bar(stat="identity")
-s
+
 
 
