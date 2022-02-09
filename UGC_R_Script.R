@@ -48,9 +48,11 @@ ug_stud_plot <- ug_stud_copy %>%
 
 # Plot line chart to show the trend of student numbers at different schools
 ggplot(data=ug_stud_plot) +
-  geom_line(mapping=aes(x=Academic_year,y=total, group=Institution, color=Institution))
+  geom_line(mapping=aes(x=Academic_year,y=total, group=Institution, color=Institution))+
+  xlab("Academic Year") + ylab("Total Number of Undergraduate Students") +
+  ggtitle("Total Number of Undergraduate Students for UGC-Funded University from 2009-2021")
 
-## Question 2 -- What is the age distribution of first-year JUPAS undergraduate student populations in each school?
+## Question 2 -- What is the age distribution of first-year local JUPAS undergraduate student populations in each school?
 # JUPAS
 # Read in First-year Student Intakes (hc) data set
 first_year_stud <- read_excel("Admission Qualification of First-year Ug Intakes by Age (hc).xls", sheet="Customised Data Retrieval" )
@@ -67,14 +69,14 @@ first_year_stud$`1st_year_intake_no`[first_year_stud$`1st_year_intake_no` == '@'
 summary(first_year_stud)
 
 # Filter out students other than locals as well as JUPAS
-first_yr_jupas <- filter(first_year_stud, `Main Admission Qualification` == 'JUPAS')
+first_yr_jupas <- filter(first_year_stud, `Main Admission Qualification` == 'JUPAS' & Origin == 'Local student')
 
 # 1. Holistic plotting -- understanding each age group (Below 17, 17-20, 21-24, 25-28, 29-)
 first_yr_jupas_holistic <- first_yr_jupas
 # Transform 'Below 17' and 'Above 30' into numerically characters
 first_yr_jupas_holistic$Age[first_yr_jupas_holistic$Age == 'Below 17'] = '16'
 first_yr_jupas_holistic$Age[first_yr_jupas_holistic$Age == 'Above 30'] = '31'
-s
+
 #Convert character values into numeric
 as.numeric(first_yr_jupas_holistic$Age)
 
@@ -106,7 +108,10 @@ first_yr_jupas_holistic <- first_yr_jupas_holistic %>%
 
 # Plot bar chart 
 ggplot(data=first_yr_jupas_holistic, aes(x=Academic_year, y=total, fill=Age)) + 
-  geom_bar(stat = "identity", position = "dodge")
+  geom_bar(stat = "identity", position = "dodge")+
+  xlab("Academic Year") + ylab("Total Number of Undergraduate Students") +
+  ggtitle("Total Number of Undergraduate Students from 2009-2021 by Ages")
+  
 
 # 2. Partial plotting -- understanding each age in the age group -- 17, 18, 19, 20 --
 first_yr_jupas_partial <- first_yr_jupas
@@ -122,5 +127,7 @@ first_yr_jupas_partial <- first_yr_jupas_partial %>%
 
 # Plot partial bar chart
 ggplot(data=first_yr_jupas_partial, aes(x=Academic_year, y=total, fill=as.factor(Age))) + 
-  geom_bar(stat = "identity", position = "dodge")
+  geom_bar(stat = "identity", position = "dodge")+
+  xlab("Academic Year") + ylab("Total Number of Undergraduate Students") +
+  ggtitle("Total Number of Undergraduate Students from 2009-2021 in the Age Group (17-20)")
 

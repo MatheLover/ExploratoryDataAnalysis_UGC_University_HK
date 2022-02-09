@@ -163,7 +163,9 @@ agg_sum_occup <- filter(agg_sum_occup, agg_sum_occup$Group.2 != 'Missing Informa
 # Plot bar chart for each profession at each school
 ggplot(data=agg_sum_occup, aes(x=Group.2, y=x, fill=Group.1)) +
   coord_flip()+
-  geom_bar(stat = "identity")
+  geom_bar(stat = "identity")+
+  xlab("Employment Category") + ylab("Number of Graduates") +
+  ggtitle("Number of Graduates from UGC-Funded Institutions in Specific Employment Categories in a Decade")
 
 ## Focus on STEM industries 
 ug_employment_stem <- filter(ug_employment, Occupation == 'Statistics and Mathematics' | Occupation == 'Medical and Health' | Occupation == 'Physics and Biology' | Occupation == 'Engineering' | Occupation == 'IT' )
@@ -179,33 +181,42 @@ agg_sum_occup_stem <- aggregate(ug_employment_stem$`No. of graduates`, by=list(u
 # Plot bar chart for each profession at each school
 ggplot(data=agg_sum_occup_stem, aes(x=Group.2, y=x, fill=Group.1)) +
   coord_flip()+
+  xlab("Employment Category") + ylab("Number of Graduates") +
+  ggtitle("Number of Graduates from UGC-Funded Institutions in STEM industry in a Decade")+
   geom_bar(stat = "identity")
 
 ## Focus on Math and Stat
 ggplot(data=ug_employment_math, aes(x=`Institution`, y=`No. of graduates`)) +
   coord_flip() +
-  geom_bar(stat = "identity")
+  geom_bar(stat = "identity")+
+  ggtitle("Number of Graduates from UGC-Funded Institutions in Math and Stat in a Decade")
 ggplot(data=ug_employment_math) +
-  geom_line(mapping=aes(x=`Academic Year`,y=`No. of graduates`, group=Institution, color=Institution))
+  geom_line(mapping=aes(x=`Academic Year`,y=`No. of graduates`, group=Institution, color=Institution))+
+  ggtitle("Number of Graduates from UGC-Funded Institutions in Math and Stat in a Decade")
 
 ## Focus on Medical and Health
 ggplot(data=ug_employment_med, aes(x=`Institution`, y=`No. of graduates`)) +
   coord_flip() +
-  geom_bar(stat = "identity")
+  geom_bar(stat = "identity")+
+  ggtitle("Number of Graduates from UGC-Funded Institutions in Medical and Health in a Decade")
 ggplot(data=ug_employment_med) +
-  geom_line(mapping=aes(x=`Academic Year`,y=`No. of graduates`, group=Institution, color=Institution))
+  geom_line(mapping=aes(x=`Academic Year`,y=`No. of graduates`, group=Institution, color=Institution))+
+  ggtitle("Number of Graduates from UGC-Funded Institutions in Medical and Health in a Decade")
 
 # Focus on schools except CU, HKU, and PolyU
 ug_employment_med_other <- filter(ug_employment_med, Institution != 'CUHK' & Institution != 'HKU' & Institution != 'PolyU' )
 ggplot(data=ug_employment_med_other) +
-  geom_line(mapping=aes(x=`Academic Year`,y=`No. of graduates`, group=Institution, color=Institution))
+  geom_line(mapping=aes(x=`Academic Year`,y=`No. of graduates`, group=Institution, color=Institution))+
+ ggtitle("Number of Graduates from UGC-Funded Institutions in Medical and Health in a Decade Except CU,HKU, PolyU")
 
 ## Focus on Phy and Bio
 ggplot(data=ug_employment_phy_bio, aes(x=`Institution`, y=`No. of graduates`)) +
   coord_flip() +
+  ggtitle("Number of Graduates from UGC-Funded Institutions in Physics and Biology in a Decade")+
   geom_bar(stat = "identity")
 ggplot(data=ug_employment_phy_bio, mapping=aes(x=`Academic Year`,y=`No. of graduates`, fill =Institution)) +
   coord_flip() +
+  ggtitle("Number of Graduates from UGC-Funded Institutions in Physics and Biology in a Decade")+
   geom_bar(stat="identity")
 
 # Pie Chart
@@ -217,17 +228,21 @@ ggplot(data=ug_employment_phy_bio, mapping=aes(x=`Academic Year`,y=`No. of gradu
 ## Focus on IT
 ggplot(data=ug_employment_it, aes(x=`Institution`, y=`No. of graduates`)) +
   coord_flip() +
-  geom_bar(stat = "identity")
+  geom_bar(stat = "identity")+
+  ggtitle("Number of Graduates from UGC-Funded Institutions in IT in a Decade")
 ggplot(data=ug_employment_it) +
-  geom_line(mapping=aes(x=`Academic Year`,y=`No. of graduates`, group=Institution, color=Institution))
+  geom_line(mapping=aes(x=`Academic Year`,y=`No. of graduates`, group=Institution, color=Institution))+
+  ggtitle("Number of Graduates from UGC-Funded Institutions in IT in a Decade")
 
 
 ## Focus on Engineering
 ggplot(data=ug_employment_eng, aes(x=`Institution`, y=`No. of graduates`)) +
   coord_flip() +
-  geom_bar(stat = "identity")
+  geom_bar(stat = "identity")+
+  ggtitle("Number of Graduates from UGC-Funded Institutions in Engineering in a Decade")
 ggplot(data=ug_employment_eng, mapping=aes(x=`Academic Year`,y=`No. of graduates`, fill =Institution)) +
   coord_flip() +
+  ggtitle("Number of Graduates from UGC-Funded Institutions in Engineering in a Decade")+
   geom_bar(stat="identity")
 
 
