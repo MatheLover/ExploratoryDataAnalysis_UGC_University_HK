@@ -25,17 +25,30 @@ agg_sum_with <- aggregate(withdraw_ug$`withdraw_no`, by=list(withdraw_ug$Institu
 
 # Plot bar chart for the number of withdrawing students at each school in each year
 ggplot(data=agg_sum_with, mapping=aes(x=Group.2,y=x)) +
-  geom_bar(stat="identity")
+  geom_bar(stat="identity") +
+  xlab("Academic Year") + ylab("Number of Undergraduate Students") +
+  ggtitle("Number of Undergraduate Students Who Discontinue Their Studies from 2009-2021")
+  
 ggplot(data=agg_sum_with, mapping=aes(x=Group.1,y=x)) +
-  geom_bar(stat="identity")
+  geom_bar(stat="identity")+
+  xlab("Institution") + ylab("Number of Undergraduate Students") +
+  ggtitle("Number of Undergraduate Students Who Discontinue Their Studies by School from 2009-2021")
 ggplot(data=agg_sum_with) +
-  geom_line(mapping=aes(x=Group.2,y=x, group=Group.1, color=Group.1))
+  geom_line(mapping=aes(x=Group.2,y=x, group=Group.1, color=Group.1))+
+  xlab("Institution") + ylab("Number of Undergraduate Students") +
+  ggtitle("Number of Undergraduate Students Who Discontinue Their Studies by School from 2009-2021")
 
 # Focus on observations from 2017/2018
 agg_sum_with_17 <- filter(agg_sum_with, agg_sum_with$Group.2 == '2017/18' | agg_sum_with$Group.2 == '2018/19' | agg_sum_with$Group.2 == '2019/20' | agg_sum_with$Group.2 == '2020/21')
 ggplot(data=agg_sum_with_17, mapping=aes(x=Group.2,y=x)) +
-  geom_bar(stat="identity")
+  geom_bar(stat="identity")+
+  xlab("Academic Year") + ylab("Number of Undergraduate Students") +
+  ggtitle("Number of Undergraduate Students Who Discontinue Their Studies from 2017-2021")
 ggplot(data=agg_sum_with_17, mapping=aes(x=Group.1,y=x)) +
-  geom_bar(stat="identity")
+  geom_bar(stat="identity")+
+  xlab("Institution") + ylab("Number of Undergraduate Students") +
+  ggtitle("Number of Undergraduate Students Who Discontinue Their Studies by School from 2017-2021")
 ggplot(data=agg_sum_with_17) +
-  geom_line(mapping=aes(x=Group.2,y=x, group=Group.1, color=Group.1))
+  geom_line(mapping=aes(x=Group.2,y=x, group=Group.1, color=Group.1))+
+  xlab("Academic Year") + ylab("Number of Undergraduate Students") +
+  ggtitle("Number of Undergraduate Students Who Discontinue Their Studies by School from 2017-2021")
