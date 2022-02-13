@@ -1,0 +1,677 @@
+---
+title: "Final Project Team BestWish"
+author: "Bowie Lam Pui King 3035870595"
+date: "2022/2/5"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+setwd(here::here()) ->x
+```
+
+## R Markdown
+Extract the file, and run the data first
+```{r cars}
+xlsx_files <- list.files(path = x, pattern="xls")       
+library("readxl")
+library(pacman)
+p_load("tidyverse", "dplyr")
+library(stringi)
+library(stringr)
+library("ggplot2")
+library("RColorBrewer")
+#install.packages("Polychrome")
+library(Polychrome)
+library(ggplot2)
+library(dplyr)
+library(hrbrthemes)
+library(babynames)
+library(viridis)
+p_load("gifski")
+install.packages("animation")
+library(gapminder)
+library(gganimate)
+library(gifski)
+library(animation)
+
+namesss<-c()
+for (i in 1:10){
+  assign(str_replace_all(substring(xlsx_files[i],1,str_length(xlsx_files[i])-4),c(" ","-"),c("_","_")), data.frame(read_excel(xlsx_files[i], sheet = "Customised Data Retrieval")))
+  namesss<-append(namesss,str_replace_all(substring(xlsx_files[i],1,str_length(xlsx_files[i])-4)," ","_"))
+}
+```
+
+```{r cars}
+#Remember to put ` before and after the data frame name to run the data frame
+`Admission_Qualification_of_First-year_Ug_Intakes_by_Age_(hc)`
+
+`Admission_Qualification_of_First-year_Ug_Intakes_by_Institution_(hc)`
+
+`Employment_Situation_of_Full-time_Graduates`           
+
+`First-year_Student_Intakes_(hc)`
+
+`Graduates_(hc)`                       
+
+`Movement_of_Academic_Staff_(fte)`  
+
+`Staff_Number_in_Academic_Departments_(hc)`
+
+`Student_Enrolment_by_Age_(hc)`
+
+`Student_Enrolment_by_Institution_(hc)`
+
+`Students_Who_Discontinued_Their_Studies_(excluding_RPg)_(hc)`
+```
+
+```{r cars}
+#Question to handle with: (Bowie Lam's part)
+# Which industry do most graduates work in? Among different schools, which school contributes the most to different sectors?    
+# Graduation situation over the years 
+# Employment situation among the high education sector, is the manpower stable among each major? 
+# Is the number of students who discontinue their undergraduate increasing?
+
+#Dataset
+`Graduates_(hc)` 
+`Employment_Situation_of_Full-time_Graduates`
+`Staff_Number_in_Academic_Departments_(hc)`
+`Students_Who_Discontinued_Their_Studies_(excluding_RPg)_(hc)`
+
+# unique(`Employment_Situation_of_Full-time_Graduates`$Institution)
+# `Employment_Situation_of_Full-time_Graduates`
+# 
+# unique(employmentdf$Occupation)
+```
+
+Reporting:
+Main Topic: What is going in Higher education sector?
+1. IT
+2. Employment of Graduation
+3. Discontinuation of Students over the year
+
+##Create Plot
+
+Which industry do most graduates work in for full time job? Among different schools?
+```{r cars}
+# Which industry do most graduates work in for full time job? Among different schools?
+`Employment_Situation_of_Full-time_Graduates`%>%
+  filter(Level.of.study!="Research postgraduate",Occupation!="Not in Full-time Employment",Occupation!="Workers reporting occupations unidentifiable or inadequately described",Occupation!="Workers not reporting any occupation",Occupation!="Occupations not elsewhere classified") %>%
+  select(Academic.Year, Institution,Occupation,No..of.graduates) -> employmentdf
+
+employmentdf$Academic.Year<- str_sub(employmentdf$Academic.Year,1,4)
+employmentdf$No..of.graduates<- as.numeric(employmentdf$No..of.graduates)
+
+employmentdf %>%
+  group_by(Academic.Year,Institution)%>%
+  mutate(
+    tot_grad= sum(No..of.graduates)
+  ) %>%
+  ungroup() ->employmentdf
+
+year<- c("2009","2010","2011","2012","2013")
+late_year<- c("2014","2015","2016","2017","2018","2019")
+
+employmentdf %>%
+  filter(Academic.Year %in% year)%>%
+  group_by(Academic.Year,Institution,Occupation) %>%
+  mutate(cate_grad_occu=sum(No..of.graduates),
+         percent_count=(cate_grad_occu/tot_grad)*100)-> semploymentdf
+
+semploymentdf[!duplicated(semploymentdf$percent_count), ] -> semploymentdf
+
+getPalette = colorRampPalette(brewer.pal(9, "Set1"))
+P30 = createPalette(30,  c("#ff0000", "#00ff00", "#0000ff"))
+swatch(P30)
+names(P30) <- NULL
+
+#industry_graduates
+ggplot(semploymentdf,aes(x = Institution , fill = Occupation, y=cate_grad_occu)) + 
+ geom_bar(position = 'fill',stat="identity", color="black")+
+  ylab('Proportion accumulated by each occupation')+
+  xlab('University (Big 8)')+
+  facet_wrap(.~Academic.Year)+
+  coord_flip()+
+  theme(legend.position="bottom")+
+  scale_color_manual(values = P30)+
+  labs(title = "Occupation Graduates work with for the past 10 years",
+       subtitle = "Among 'Big 8' Universities, differentiated by year")+
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+ggsave("industry_graduates1.png",width = 25, height = 12)
+```
+Second Garph
+```{r car}
+late_year<- c("2014","2015","2016","2017","2018","2019")
+
+employmentdf %>%
+  filter(Academic.Year %in% late_year)%>%
+  group_by(Academic.Year,Institution,Occupation) %>%
+  mutate(cate_grad_occu=sum(No..of.graduates),
+         percent_count=(cate_grad_occu/tot_grad)*100)-> lemploymentdf
+
+lemploymentdf[!duplicated(lemploymentdf$percent_count), ] -> lemploymentdf
+
+# getPalette = colorRampPalette(brewer.pal(9, "Set1"))
+# P30 = createPalette(30,  c("#ff0000", "#00ff00", "#0000ff"))
+# swatch(P30)
+# names(P30) <- NULL
+
+#industry_graduates
+ggplot(lemploymentdf,aes(x = Institution , fill = Occupation, y=cate_grad_occu)) + 
+ geom_bar(position = 'fill',stat="identity", color="black")+
+  ylab('Proportion accumulated by each occupation')+
+  xlab('University (Big 8)')+
+  facet_wrap(.~Academic.Year)+
+  coord_flip()+
+  theme(legend.position="bottom")+
+  scale_color_manual(values = P30)+
+  labs(title = "Occupation Graduates work with for the past 10 years",
+       subtitle = "Among 'Big 8' Universities, differentiated by year")+
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+ggsave("industry_graduates2.png",width = 25, height = 12)
+
+
+#industry_graduates_gg_animate
+ggplot(lemploymentdf,aes(x = Institution , fill = Occupation, y=cate_grad_occu)) +
+#ggtitle("Occupation Graduates work with for the past 10 years, Year: ")+
+ geom_bar(position = 'fill',stat="identity", color="black")+
+  ylab('Proportion accumulated by each occupation')+
+  xlab('University (Big 8)')+
+  transition_states(Academic.Year) +
+  # facet_wrap(.~Academic.Year)+
+  coord_flip()+
+  theme(legend.position="bottom")+
+  scale_color_manual(values = P30)+
+  labs(title ="Occupation Graduates work with for the past 10 years, Year: {next_state}")+
+  labs(subtitle = "Among 'Big 8' Universities, differentiated by year")+
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))->p_covi
+animate(p_covi, nframes = 150, fps = 30, width = 1200, height = 600,renderer = gifski_renderer())
+anim_save("another_ind_ani.gif", animation = last_animation())
+
+```
+Year by Year Pie chart, Industries distribution among graduates yearly
+```{r cars}
+#Year by Year Pie chart, Industries distribution among graduates yearly
+`Employment_Situation_of_Full-time_Graduates`%>%
+  filter(Level.of.study!="Research postgraduate",Occupation!="Not in Full-time Employment",Occupation!="Workers reporting occupations unidentifiable or inadequately described",Occupation!="Workers not reporting any occupation",Occupation!="Occupations not elsewhere classified") %>%
+  select(Academic.Year, Institution,Occupation,No..of.graduates) -> total_employ
+
+total_employ$Academic.Year<- str_sub(total_employ$Academic.Year,1,4)
+total_employ$No..of.graduates<- as.numeric(total_employ$No..of.graduates)
+
+total_employ %>%
+  group_by(Academic.Year,Occupation)%>%
+  mutate(aggregate(No..of.graduates, list(Occupation), sum)) %>%
+  select(Academic.Year, Occupation, No..of.graduates,x) -> total_employ
+
+colnames(total_employ)[4]<- "Total_grad_by_ind"
+
+total_employ%>%
+  group_by(Academic.Year,Occupation)%>%
+  distinct(Occupation, .keep_all = TRUE) -> total_employ
+
+total_employ %>%
+  group_by(Academic.Year) %>%
+  mutate(aggregate(Total_grad_by_ind, list(Academic.Year),sum)) ->new_total_employ
+
+new_total_employ %>%
+  select(Academic.Year,Occupation,Total_grad_by_ind,x)->new_total_employ
+
+colnames(new_total_employ)[4]<- "Total_by_year"
+
+#Rank them
+new_total_employ%>%
+  group_by(Academic.Year)%>%
+  mutate(ranking= rank(desc(Total_grad_by_ind)))-> new_total_employ
+
+#now we select only top 10 industries most students work with from each of the year
+new_total_employ%>%
+  group_by(Academic.Year,Occupation)%>%
+  filter(ranking<=10) %>%
+  group_by(Academic.Year)%>%
+  mutate(
+    aggregate(Total_grad_by_ind,list(Academic.Year),sum)
+  )%>%
+  select(-Group.1)->new_total_employ
+
+colnames(new_total_employ)[6]<- "total_by_rank"
+```
+
+
+Make the graph now
+```{r cars}
+# Compute percentages
+new_total_employ$fraction <- new_total_employ$Total_grad_by_ind / new_total_employ$total_by_rank
+
+# Compute the cumulative percentages (top of each rectangle)
+new_total_employ$ymax <- cumsum(new_total_employ$fraction)
+
+# Compute the bottom of each rectangle
+new_total_employ$ymin <- c(0, head(new_total_employ$ymax, n=-1))
+
+# Compute label position
+new_total_employ$labelPosition <-(new_total_employ$ymax + new_total_employ$ymin) / 2
+
+# Compute a good label
+new_total_employ$label <- paste0(new_total_employ$Occupation, "\n", round((new_total_employ$fraction)*100,2), "%")
+
+cp <- coord_polar(theta = "y")
+cp$is_free <- function() TRUE
+
+year<- c("2009","2010","2011","2012")
+late_year<- c("2013","2014","2015","2016")
+late_yearr<-c("2018","2019")
+
+new_total_employ%>%
+  filter(Academic.Year %in% year) ->cnew_total_employ
+
+new_total_employ%>%
+  filter(Academic.Year %in% late_year) ->dnew_total_employ
+
+new_total_employ%>%
+  filter(Academic.Year %in% late_yearr) ->enew_total_employ
+
+# Make the plot
+ggplot(new_total_employ, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Occupation)) +
+  geom_rect() +
+  scale_fill_brewer(palette = 'Paired') +
+  geom_label(x=4, aes(y=labelPosition, label=label), size=1.5)  +
+  facet_wrap(~Academic.Year, scale = 'free', ncol = 4)+
+  cp+
+  xlim(c(2,4)) +
+  theme(aspect.ratio = 1)+
+  theme(legend.position = "right")+
+  labs(title = "Industries Graduates participated",
+       subtitle = "Over the last ten years")+
+  ylab("Filter by Top Ten Occupation per year")+
+   theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid  = element_blank(),
+        plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+# ggsave("Pie_chart_yearbyyear.png",width = 25, height = 12)
+
+#Gif for many years-------------------------------------------------------------------------------------------------------------
+# p_load("gifski")
+# install.packages("animation")
+# library(gapminder)
+# library(gganimate)
+# library(gifski)
+# library(animation)
+library(animation)
+saveGIF({
+  for (i in unique(new_total_employ$Academic.Year)) {
+    p = ggplot(new_total_employ[new_total_employ$Academic.Year== i,], aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Occupation,frame=Academic.Year)) +
+  # transition_states(Academic.Year) +
+  geom_rect() +
+  scale_fill_brewer(palette = 'Paired') +
+  geom_label(x=4, aes(y=labelPosition, label=label), size=3)  +
+  facet_wrap(~Academic.Year, scale = 'free')+
+  cp+
+  xlim(c(2,4)) +
+  theme(aspect.ratio = 1)+
+  theme(legend.position = "none")+
+  labs(title = "Industries Graduates participated",
+       subtitle = "Over the last ten years")+
+  ylab("Filter by Top Ten Occupation per year")+
+   theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid  = element_blank(),
+        plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+    print(p)
+  }
+}, movie.name="ind_grad_gf.gif")
+```
+
+Split Graph
+```{r car}
+ggplot(cnew_total_employ, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Occupation)) +
+  geom_rect() +
+  scale_fill_brewer(palette = 'Paired') +
+  geom_label(x=4, aes(y=labelPosition, label=label), size=3)  +
+  facet_wrap(~Academic.Year, scale = 'free', ncol = 2)+
+  cp+
+  xlim(c(2,4)) +
+  theme(aspect.ratio = 1)+
+  theme(legend.position = "right")+
+  labs(title = "Industries Graduates participated",
+       subtitle = "Over the last ten years")+
+  ylab("Filter by Top Ten Occupation per year")+
+   theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid  = element_blank(),
+        plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+ggsave("Pie_chart_yearbyyear1.png",width = 25, height = 12)
+
+ggplot(dnew_total_employ, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Occupation)) +
+  geom_rect() +
+  scale_fill_brewer(palette = 'Paired') +
+  geom_label(x=4, aes(y=labelPosition, label=label), size=3)  +
+  facet_wrap(~Academic.Year, scale = 'free', ncol = 2)+
+  cp+
+  xlim(c(2,4)) +
+  theme(aspect.ratio = 1)+
+  theme(legend.position = "right")+
+  labs(title = "Industries Graduates participated",
+       subtitle = "Over the last ten years")+
+  ylab("Filter by Top Ten Occupation per year")+
+   theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid  = element_blank(),
+        plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+ggsave("Pie_chart_yearbyyear2.png",width = 25, height = 12)
+
+ggplot(enew_total_employ, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Occupation)) +
+  geom_rect() +
+  scale_fill_brewer(palette = 'Paired') +
+  geom_label(x=4, aes(y=labelPosition, label=label), size=3)  +
+  facet_wrap(~Academic.Year, scale = 'free', ncol = 2)+
+  cp+
+  xlim(c(2,4)) +
+  theme(aspect.ratio = 1)+
+  theme(legend.position = "right")+
+  labs(title = "Industries Graduates participated",
+       subtitle = "Over the last ten years")+
+  ylab("Filter by Top Ten Occupation per year")+
+   theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid  = element_blank(),
+        plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+ggsave("Pie_chart_yearbyyear3.png",width = 25, height = 12)
+
+```
+
+Percentage Change Graph
+```{r car}
+total_employ %>%
+  group_by(Occupation) %>%
+  mutate(pct_change=(Total_grad_by_ind/lag(Total_grad_by_ind)-1)*100) -> total_employ_pct
+
+total_employ_pct[is.na(total_employ_pct)] <- 0
+
+total_employ_pct
+
+# Libraries
+# library(ggplot2)
+# library(babynames) # provide the dataset: a dataframe called babynames
+# library(dplyr)
+# library(hrbrthemes)
+# library(viridis)
+
+# Keep only 3 names
+don <- babynames %>% 
+  filter(name %in% c("Ashley", "Patricia", "Helen")) %>%
+  filter(sex=="F")
+  
+# Plot
+n<- 27
+# library("RColorBrewer")
+# #install.packages("Polychrome")
+# library(Polychrome)
+unique(total_employ_pct$Occupation)
+oo<- c("Accountants and Auditors","Architects and Surveyors",                     
+"Artists"    ,                                   "Business Professionals"  ,                     
+"Clerical and Related Workers",                  "Economists, Statisticians and Mathematicians" ,
+ "Engineering Technicians"      ,                 "Engineers"                                  ,  
+  "Other Professionals and Technical Workers")
+
+ooo<- c( "Production and Related Workers"    ,           
+ "Religious Workers"                             ,"System Analysts and Computer Programmers"     ,
+ "Legal Workers"                                 ,"Agriculture and Fishery Workers"     ,         
+"Aircraft and Ship Officers"                    ,"Authors, Journalists and Related Writers"    , 
+ "Government Officials (General Grades)" )
+
+oooo<-c("Insurance, Real Estate, and Business Services",
+ "Managers"                                      ,"Medical and Health Workers"    ,               
+ "Other Service Workers"                         ,"Physical and Life Science Technicians"      ,  
+ "Physical and Life Scientists"                  ,"Protective Service Workers"  ,                 
+ "Sales/Service Workers"                         ,"Teaching Profession"    ,                      
+ "Government Administrators and Diplomats")
+
+
+
+total_employ_pct %>%
+  filter(Occupation %in% oo) %>%
+  ggplot(aes(x=Academic.Year, y=pct_change, group=Occupation, color=Occupation)) +
+  scale_color_viridis(discrete = TRUE)+
+    geom_line(size=2) +
+    scale_color_viridis(discrete = TRUE) +
+    ggtitle("Percentage Change of Graduate partipation Year over Year") +
+    theme_bw() +
+  theme(legend.position = "none")+ylab("Percentage Change (%)")+xlab("Academic Year")+
+    facet_wrap(.~Occupation, scales = "free",  ncol = 3)
+ggsave("pct_change_ind_1.png",width = 25, height = 12)
+
+total_employ_pct %>%
+  filter(Occupation %in% ooo) %>%
+  ggplot(aes(x=Academic.Year, y=pct_change, group=Occupation, color=Occupation)) +
+  scale_color_viridis(discrete = TRUE)+
+    geom_line(size=2) +
+    scale_color_viridis(discrete = TRUE) +
+    ggtitle("Percentage Change of Graduate partipation Year over Year") +
+    theme_bw() +
+  theme(legend.position = "none")+ylab("Percentage Change (%)")+xlab("Academic Year")+
+    facet_wrap(.~Occupation, scales = "free",  ncol = 3)
+ggsave("pct_change_ind_2.png",width = 25, height = 12)
+
+total_employ_pct %>%
+  filter(Occupation %in% oooo) %>%
+  ggplot(aes(x=Academic.Year, y=pct_change, group=Occupation, color=Occupation)) +
+  scale_color_viridis(discrete = TRUE)+
+    geom_line(size=2) +
+    scale_color_viridis(discrete = TRUE) +
+    ggtitle("Percentage Change of Graduate partipation Year over Year") +
+    theme_bw() +
+  theme(legend.position = "none")+ylab("Percentage Change (%)")+xlab("Academic Year")+
+    facet_wrap(.~Occupation, scales = "free",  ncol = 3)
+ggsave("pct_change_ind_3.png",width = 25, height = 12)
+
+total_employ_pct %>%
+  ggplot(aes(x=Academic.Year, y=pct_change, group=Occupation, color=Occupation)) +
+  scale_color_viridis(discrete = TRUE)+
+    geom_line(size=2) +
+    scale_color_viridis(discrete = TRUE) +
+    ggtitle("Percentage Change of Graduate partipation Year over Year") +
+    theme_bw() +
+  theme(legend.position = "none")+ylab("Percentage Change (%) (Standardised)")+xlab("Academic Year")+
+    facet_wrap(.~Occupation,ncol = 6)
+ggsave("tot_pct_change_ind.png",width = 25, height = 12)
+```
+
+```{r cars}
+total_employ_pct %>%
+  filter(Occupation == "System Analysts and Computer Programmers") -> it_indust
+
+# Plot
+ggplot(it_indust, aes(x=Academic.Year, y=Total_grad_by_ind)) +
+  geom_segment(
+    aes(x=Academic.Year, xend=Academic.Year, y=0, yend=Total_grad_by_ind), 
+    color=ifelse(it_indust$Academic.Year == "2019" | it_indust$Academic.Year == "2015", "red", "grey"), 
+    size=ifelse(it_indust$Academic.Year == "2019"|it_indust$Academic.Year =="2015", 1.3, 0.7),
+  ) +
+  geom_point(
+    color=ifelse(it_indust$Academic.Year == "2019" |it_indust$Academic.Year == "2015", "red", "grey"), 
+    size=ifelse(it_indust$Academic.Year == "2019" | it_indust$Academic.Year =="2015", 5, 2),
+  ) +
+  theme_bw() +
+  coord_flip(ylim = c(0,2000),expand = TRUE) +
+  theme(
+    legend.position="none"
+  ) +
+  xlab("Year") +
+  ylab("Number of Students") +
+  ggtitle("Number of Graduates working in IT industries, by year")+
+# Add annotation
+ annotate("text", x=grep("2019", it_indust$Academic.Year), y=it_indust$Total_grad_by_ind[which(it_indust$Academic.Year=="2019")]*1.2, 
+           label="Highest number of students: 923 ", 
+           color="red", size=4.5 , angle=0, fontface="bold", hjust=0) + 
+  
+    annotate("text", x=grep("2015", it_indust$Academic.Year), y=it_indust$Total_grad_by_ind[which(it_indust$Academic.Year=="2015")]*1.2, 
+           label = paste("The year in which the Technology Bureau was initatiated: ",it_indust$Total_grad_by_ind[which(it_indust$Academic.Year=="2015")] %>% round(2)) , 
+           color="red", size=4.5 , angle=0, fontface="bold", hjust=0)
+ggsave("lollipop_IT.png",width = 15, height = 24)
+```
+
+
+
+Among the big 5 industries, where are those employees come from?
+```{r cars}
+#Among the big 5 industries, which university has most of their employees studied from?
+`Employment_Situation_of_Full-time_Graduates`%>%
+  filter(Level.of.study!="Research postgraduate",Occupation!="Not in Full-time Employment",Occupation!="Workers reporting occupations unidentifiable or inadequately described",Occupation!="Workers not reporting any occupation",Occupation!="Occupations not elsewhere classified") %>%
+  select(Academic.Year, Institution,Occupation,No..of.graduates) -> employmentdf
+
+employmentdf$Academic.Year<- str_sub(employmentdf$Academic.Year,1,4)
+employmentdf$No..of.graduates<- as.numeric(employmentdf$No..of.graduates)
+
+employmentdf %>%
+  group_by(Academic.Year,Institution,Occupation)%>%
+  mutate(
+    tot_grad_cate= as.numeric(aggregate(No..of.graduates,list(Occupation), sum)[2])
+  ) -> df1
+
+df1 %>%
+  group_by(Academic.Year,Occupation) %>%
+  mutate(
+    tot_cate_sum = sum(No..of.graduates)
+  ) %>%
+  select(-No..of.graduates)-> df1
+#remove duplicated value within Occupation
+df1%>%
+  group_by(Academic.Year, Institution) %>%
+  distinct(Occupation, .keep_all= TRUE) -> df1
+#Include proportion column
+df1 %>%
+  group_by(Academic.Year, Occupation)%>%
+  mutate(proportion= tot_grad_cate/tot_cate_sum) -> df1
+
+big_five_industries<- c("Accountants and Auditors","Business Professionals","Engineers","Medical and Health Workers","System Analysts and Computer Programmers")
+
+year<- c("2017","2018","2019")
+
+df1 %>%
+  filter(Occupation %in% big_five_industries) -> df1
+
+ggplot(df1, aes(fill=Institution, y=tot_grad_cate, x=Academic.Year)) + 
+  geom_bar(position="fill", stat="identity")+
+    geom_text(
+    aes(label = round(proportion*100,2)),
+    colour = "white", size = 3,
+    vjust = 1.5, position = position_fill(.9)
+  )+
+  ylab("Proportion accumulated by each Institution")+xlab("Academic Year")+
+  facet_wrap(.~Occupation)
+ggsave("big_5_proportions.png",width = 25, height = 12)
+
+
+# #emp_cate_gg_animate
+# ggplot(lemploymentdf,aes(x = Institution , fill = Occupation, y=cate_grad_occu)) +
+# #ggtitle("Occupation Graduates work with for the past 10 years, Year: ")+
+#  geom_bar(position = 'fill',stat="identity", color="black")+
+#   ylab('Proportion accumulated by each occupation')+
+#   xlab('University (Big 8)')+
+#   transition_states(Academic.Year) +
+#   # facet_wrap(.~Academic.Year)+
+#   coord_flip()+
+#   theme(legend.position="bottom")+
+#   scale_color_manual(values = P30)+
+#   labs(title ="Occupation Graduates work with for the past 10 years, Year: {next_state}")+
+#   labs(subtitle = "Among 'Big 8' Universities, differentiated by year")+
+#   theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))->p_covi
+# animate(p_covi, nframes = 150, fps = 50, width = 1200, height = 600,renderer = gifski_renderer())
+# anim_save("another_ind_ani.gif", animation = last_animation())
+
+
+ggplot(df1, aes(fill=Institution, y=tot_grad_cate, x=Academic.Year)) + 
+  geom_bar(position="fill", stat="identity")+
+  transition_states(Occupation) +
+    geom_text(
+    aes(label = round(proportion*100,2)),
+    colour = "white", size = 3,
+    vjust = 1.5, position = position_fill(.9)
+  )+
+  labs(title ="Where do our graduates come from? Occupation: {next_state}")+
+  ylab("Proportion accumulated by each Institution")+xlab("Academic Year")-> p_covi2
+animate(p_covi2, nframes = 150, fps = 30, width = 1200, height = 600,renderer = gifski_renderer())
+anim_save("grad_empl.gif", animation = last_animation())
+```
+
+
+Is the number of students who discontinue their undergraduate studies increasing? 
+Which School has the most student discontinuing recently?
+```{r cars}
+`Students_Who_Discontinued_Their_Studies_(excluding_RPg)_(hc)` %>%
+  select(-Mode.of.study)-> df_discontinue
+
+df_discontinue$Academic.Year<- str_sub(df_discontinue$Academic.Year,1,4)
+
+colnames(df_discontinue)[4]<- "Discontinued_number"
+df_discontinue$Discontinued_number<- as.numeric(df_discontinue$Discontinued_number)
+
+
+df_discontinue %>%
+  group_by(Academic.Year,Institution,Level.of.study)%>%
+  filter(Academic.Year!="2009")%>%
+  mutate(
+    tot_dis= as.numeric(aggregate(Discontinued_number,list(Level.of.study), sum)[2])
+  ) %>%
+  distinct(tot_dis, .keep_all = TRUE) %>%
+  select(-Discontinued_number) ->df_discontinue
+```
+
+```{r cars}
+#Graph
+ggplot(df_discontinue, aes(x=Academic.Year, y=tot_dis, group=Level.of.study)) + 
+  ylab("Quantity") + 
+  facet_wrap(.~Institution)+
+  geom_line(aes(linetype = Level.of.study, color=Level.of.study), size=2) + 
+  geom_point(aes(color = Level.of.study), size=5) + 
+  geom_label(
+    aes(label=tot_dis), 
+    nudge_x = 0.25, nudge_y = 0.25, 
+    check_overlap = T
+  )+
+  labs(title = "Number of Students that discontinue their studies",
+       subtitle = "Situation among different schools for last ten years")+
+  scale_linetype_manual(values=c("solid", "solid","solid")) + 
+  scale_color_manual(values=c('#DC143C','#4169E1',"#11f276")) + 
+  theme_grey() +
+  theme(legend.position = "right")+ylab("Number of Students")+xlab("Academic Year")+
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+ggsave("students_discontinue.png",width = 25, height = 12)
+```
+
+Overall Trend of HK students discontinuing their studies
+```{r cars}
+`Students_Who_Discontinued_Their_Studies_(excluding_RPg)_(hc)` %>%
+  select(-Mode.of.study)-> total_discontinue
+
+total_discontinue$Academic.Year<- str_sub(total_discontinue$Academic.Year,1,4)
+
+colnames(total_discontinue)[4]<- "Discontinued_number"
+total_discontinue$Discontinued_number<- as.numeric(total_discontinue$Discontinued_number)
+
+total_discontinue%>%
+  group_by(Academic.Year)%>%
+  mutate(
+    aggregate(Discontinued_number,list(Academic.Year), sum)
+  ) %>%
+  select(Academic.Year,x) ->total_discontinue
+
+colnames(total_discontinue)[2]<- "Total_Students_discontinue"
+
+total_discontinue%>%
+  filter(Academic.Year!="2009")%>%
+  distinct(Academic.Year, .keep_all = TRUE) -> total_discontinue
+
+ggplot(total_discontinue, aes(x=Academic.Year, y=Total_Students_discontinue,fill=as.factor(Academic.Year))) + 
+  geom_bar(stat = "identity") + scale_color_brewer(palette="RdYIBu") +
+  theme(legend.position="None")+
+  geom_text(aes(label = Total_Students_discontinue), vjust = 1.5)+
+  ylab("Total number of Students discontinued")+
+  xlab("Academic Year")+
+  labs(title = "Total Number of Students that discontinue their studies",
+       subtitle = "From 'Big 8' Universities")+
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+ggsave("Total_discontinue_trend.png",width = 25, height = 12)
+```
